@@ -19,9 +19,10 @@ async def add_user(user: UserBase, db: AsyncSession = Depends(get_db)):
         existing_user = await db.execute(
             select(Users).where((Users.email == user.email) | (Users.login == user.login))
         )
-        if existing_user:
+        check_user = existing_user.scalars().all()
+        if check_user:
             raise HTTPException(status_code=400, detail="Пользователь с таким логином или Email уже существует")
-
+      
         # Хеширование пароля перед сохранением в базу данных
         hashed_password = pwd_context.hash(user.password)
         user_dict = user.dict()
