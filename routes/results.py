@@ -147,11 +147,12 @@ async def check_status(competition_id: str, user_id: str, db: AsyncSession = Dep
         competition = await db.scalar(select(Competitions).where(Competitions.competition_id == competition_id))
         if competition is None:
             raise HTTPException(status_code=404, detail="Такого соревнования нет")
-        
+    
         statuses = await db.scalars(select(Results.status).where(and_(Results.competition_id == competition_id, Results.user_id == user_id)))
-        if statuses is None:
+        resultStatus = statuses.all()
+        if len(resultStatus) == 0:
             raise HTTPException(status_code=404, detail="Статус не найден")
-        return statuses.all()
+        return resultStatus
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Произошла ошибка при получении данных: {str(e)}")
 
